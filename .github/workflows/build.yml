@@ -5,7 +5,6 @@ on:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master ]
-  # Allow manual trigger
   workflow_dispatch:
 
 jobs:
@@ -66,11 +65,14 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
-    - name: Clean build cache
+    # Clear Gradle cache to force use Gradle 8.9
+    - name: Clean old Gradle distributions
       run: |
-        ./gradlew clean
-        rm -rf ~/.gradle/caches/transforms-*
-        rm -rf ~/.gradle/caches/build-cache-*
+        rm -rf ~/.gradle/wrapper/dists/gradle-8.7*
+        rm -rf ~/.gradle/caches/
+    
+    - name: Clean build
+      run: ./gradlew clean --no-daemon
     
     - name: Build Debug APK
       run: ./gradlew assembleDebug --stacktrace --no-daemon
@@ -100,5 +102,5 @@ jobs:
         path: |
           build/reports/
           app/build/reports/
-          ~/.gradle/daemon/*/daemon-*.out.log
+          .gradle/
         retention-days: 7
