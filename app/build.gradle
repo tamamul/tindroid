@@ -17,7 +17,7 @@ if (hasKeystore) {
 }
 
 android {
-    namespace 'com.marsa9.marsachat'
+    namespace 'co.tinode.tindroid'
     compileSdkVersion 36
 
     if (hasKeystore) {
