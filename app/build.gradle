@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.marsa9.marsachat"
+        applicationId "co.tinode.tindroidx"
         minSdkVersion 27
         targetSdkVersion 36
 
