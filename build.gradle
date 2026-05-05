@@ -7,7 +7,6 @@ buildscript {
         maven { url 'https://maven.google.com/' }
     }
     dependencies {
-        // DOWNGRADE ke versi 8.7.2 (kompatibel dengan Gradle 8.7)
         classpath 'com.android.tools.build:gradle:8.7.2'
 
         // For FCM push notifications
@@ -45,21 +44,32 @@ tasks.register('clean', Delete) {
 }
 
 // Use git revision counter as a version code.
-static def gitVersionCode() {
-    // If you are not compiling in a git directory and getting an error like
-    // [A problem occurred evaluating root project 'master'. For input string: ""]
-    // then just return your manually assigned error code like this:
-    //  return 12345
-    def process = "git rev-list --count HEAD".execute()
-    return process.text.toInteger()
+def gitVersionCode() {
+    try {
+        def process = "git rev-list --count HEAD".execute()
+        def result = process.text.trim()
+        if (result != null && !result.isEmpty()) {
+            return result.toInteger()
+        }
+    } catch (Exception e) {
+        println "WARNING: Could not get git version code: ${e.message}"
+    }
+    // Fallback ke timestamp jika git tidak tersedia
+    return System.currentTimeMillis() / 1000 as int
 }
 
 // Use current git tag as a version name.
-// For example, if the git tag is 'v0.20.0-rc1' then the version name will be '0.20.0-rc1'.
-static def gitVersionName() {
-    // If you are not compiling in a git directory, you should manually assign version name:
-    //  return "MyVersionName"
-    def process = "git describe --tags".execute()
-    // Remove trailing CR and remove leading 'v' as in 'v1.2.3'
-    return process.text.trim().substring(1)
+def gitVersionName() {
+    try {
+        def process = "git describe --tags".execute()
+        def result = process.text.trim()
+        if (result != null && !result.isEmpty()) {
+            // Remove trailing CR and remove leading 'v' as in 'v1.2.3'
+            return result.substring(result.startsWith("v") ? 1 : 0)
+        }
+    } catch (Exception e) {
+        println "WARNING: Could not get git version name: ${e.message}"
+    }
+    // Fallback ke version code jika git tidak tersedia
+    return "1.0.${gitVersionCode()}"
 }
