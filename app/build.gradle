@@ -4,6 +4,9 @@ apply plugin: 'com.android.application'
 if (file("google-services.json").exists()) {
     apply plugin: 'com.google.gms.google-services'
     apply plugin: 'com.google.firebase.crashlytics'
+    println "Firebase plugins applied successfully"
+} else {
+    println "Firebase plugins SKIPPED (google-services.json not found)"
 }
 
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
@@ -14,11 +17,14 @@ def hasKeystore = keystorePropertiesFile.exists()
 def keystoreProperties = new Properties()
 if (hasKeystore) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    println "Keystore found, will sign release build"
+} else {
+    println "Keystore NOT found, release build will use debug signing"
 }
 
 android {
     namespace 'co.tinode.tindroid'
-    compileSdkVersion 36
+    compileSdk 36
 
     if (hasKeystore) {
         signingConfigs {
@@ -33,8 +39,8 @@ android {
 
     defaultConfig {
         applicationId "co.tinode.tindroidx"
-        minSdkVersion 27
-        targetSdkVersion 36
+        minSdk 27
+        targetSdk 36
 
         vectorDrawables.useSupportLibrary = true
 
@@ -48,6 +54,7 @@ android {
     buildTypes {
         debug {
             resValue "string", "default_host_name", '"chat.marsa9.com"'
+            debuggable true
         }
         release {
             resValue "string", "default_host_name", '"chat.marsa9.com"'
@@ -106,7 +113,12 @@ dependencies {
     implementation 'androidx.fragment:fragment:1.8.9'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    
+    // Lifecycle components (replacing deprecated lifecycle-extensions)
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.8.7'
+    
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.recyclerview:recyclerview-selection:1.2.0'
@@ -125,10 +137,16 @@ dependencies {
     implementation 'com.google.android.gms:play-services-oss-licenses:17.4.0'
     implementation 'com.google.android.material:material:1.13.0'
 
-    // Firebase opsional
-    implementation 'com.google.firebase:firebase-core:21.1.1'
-    implementation 'com.google.firebase:firebase-crashlytics:20.0.4'
-    implementation 'com.google.firebase:firebase-messaging:25.0.1'
+    // FIREBASE - Hanya jika file google-services.json ada
+    if (file("google-services.json").exists()) {
+        implementation platform('com.google.firebase:firebase-bom:33.5.1')
+        implementation 'com.google.firebase:firebase-crashlytics'
+        implementation 'com.google.firebase:firebase-messaging'
+        implementation 'com.google.firebase:firebase-analytics'
+        println "Firebase dependencies added"
+    } else {
+        println "Firebase dependencies SKIPPED"
+    }
 
     implementation 'com.google.mlkit:barcode-scanning:17.3.0'
     implementation 'com.googlecode.libphonenumber:libphonenumber:9.0.25'
