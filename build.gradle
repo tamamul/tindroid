@@ -8,26 +8,18 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.7.2'
-
-        // For FCM push notifications
         classpath 'com.google.gms:google-services:4.4.4'
-
-        // Crashlytics
         classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.6'
-
-        // Legal compliance: plugin to collect and display OSS licenses.
         classpath 'com.google.android.gms:oss-licenses-plugin:0.10.10'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
-// This block encapsulates custom properties and makes them available to all
-// modules in the project.
+// Manual version (for CI compatibility)
 ext {
-    version_code = gitVersionCode()
-    version_name = gitVersionName()
+    // Gunakan timestamp untuk version code
+    version_code = (System.currentTimeMillis() / 1000).toInteger()
+    // Version name manual
+    version_name = "1.0.0"
 }
 
 allprojects {
@@ -41,35 +33,4 @@ allprojects {
 
 tasks.register('clean', Delete) {
     delete rootProject.buildDir
-}
-
-// Use git revision counter as a version code.
-def gitVersionCode() {
-    try {
-        def process = "git rev-list --count HEAD".execute()
-        def result = process.text.trim()
-        if (result != null && !result.isEmpty()) {
-            return result.toInteger()
-        }
-    } catch (Exception e) {
-        println "WARNING: Could not get git version code: ${e.message}"
-    }
-    // Fallback ke timestamp jika git tidak tersedia
-    return System.currentTimeMillis() / 1000 as int
-}
-
-// Use current git tag as a version name.
-def gitVersionName() {
-    try {
-        def process = "git describe --tags".execute()
-        def result = process.text.trim()
-        if (result != null && !result.isEmpty()) {
-            // Remove trailing CR and remove leading 'v' as in 'v1.2.3'
-            return result.substring(result.startsWith("v") ? 1 : 0)
-        }
-    } catch (Exception e) {
-        println "WARNING: Could not get git version name: ${e.message}"
-    }
-    // Fallback ke version code jika git tidak tersedia
-    return "1.0.${gitVersionCode()}"
 }
