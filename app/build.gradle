@@ -9,7 +9,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    namespace 'co.tinode.tindroid'
+    namespace 'com.marsa9.marsachat'
 
     signingConfigs {
         release {
